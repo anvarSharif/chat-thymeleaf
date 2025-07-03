@@ -10,6 +10,8 @@ import com.example.chat_spring_thymeleaf.repo.MessageRepository;
 import com.example.chat_spring_thymeleaf.repo.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +29,7 @@ public class MessageController {
     private final MessageRepository messageRepository;
     private final AttachmentRepository attachmentRepository;
     private final AttachmentContentRepository attachmentContentRepository;
-
+    private final SimpMessageSendingOperations simpMessageSendingOperations;
     @Transactional
     @PostMapping("/send")
     public String send(@RequestParam String text, @RequestParam Integer toUser, @SessionAttribute User currentUser, @RequestParam MultipartFile file) throws IOException {
@@ -38,6 +40,7 @@ public class MessageController {
                 saveAttachment(file)
         );
         messageRepository.save(message);
+        simpMessageSendingOperations.convertAndSend("/topic/messages/" + toUser, "signal!");
         return "redirect:/chat?userId=" + toUser;
     }
 

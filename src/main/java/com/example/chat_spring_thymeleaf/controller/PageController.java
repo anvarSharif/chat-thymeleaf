@@ -35,7 +35,9 @@ public class PageController {
         notificationService.manage(users,currentUser);
         model.addAttribute("users", users);
         model.addAttribute("currentUser",currentUser);
+        model.addAttribute("currentUserId",currentUser.getId());
         if (userId != null) {
+            model.addAttribute("selectedUserId",userId);
             model.addAttribute("selectedUser",
                     users.stream().filter(item -> item.getId().equals(userId)).findFirst().get());
             List<Message> chatHistory = messageRepository.getChatHistory(currentUser.getId(), userId);
@@ -46,7 +48,6 @@ public class PageController {
             }
             messageRepository.saveAll(chatHistory);
             model.addAttribute("messages", chatHistory);
-
         }
         return "chat";
     }
